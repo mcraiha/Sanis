@@ -1,6 +1,8 @@
 using System;
 using System.Xml;
 using System.IO;
+using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Generoija
 {
@@ -62,6 +64,46 @@ namespace Generoija
 							count++;
 						}
 					}		
+				}
+			}
+		}
+
+		public static void CreateNFirstTranslationsJSON(string inputFilePath, int howMany, string outputFilePath)
+		{
+			using (XmlReader reader = XmlReader.Create(inputFilePath))
+			{
+				reader.MoveToContent();
+
+				int count = 0;
+
+				Dictionary<string, Translation> translations = new Dictionary<string, Translation>();
+
+				while (BigXMLProcess.ReadToElement(reader, pageString) && count < howMany)
+				{
+					BigXMLProcess.ReadToElement(reader, titleString);
+					string title = reader.ReadElementContentAsString();
+
+					BigXMLProcess.ReadToElement(reader, namespaceString);
+					string nameSpaceNumber = reader.ReadElementContentAsString();
+					if (nameSpaceNumber.Equals(wantedNsNumber))
+					{
+						BigXMLProcess.ReadToElement(reader, textString);
+						string text = reader.ReadElementContentAsString();
+						var possibleMatch = ReturnSuitableMatch(text, englishTranslation);
+						if (possibleMatch.Item1)
+						{
+							string[] splitted = CleanAndSplitSuitable(possibleMatch.Item2);
+
+							translations[title] = new Translation() { translations = splitted};
+							count++;
+						}
+					}		
+				}
+
+				using (StreamWriter file = File.CreateText(outputFilePath))
+				{
+					JsonSerializer serializer = new JsonSerializer();
+    				serializer.Serialize(file, translations);
 				}
 			}
 		}

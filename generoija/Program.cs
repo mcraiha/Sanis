@@ -34,7 +34,16 @@ namespace Generoija
 
 				BigXMLProcess.PrintNFirstTranslations(args[2], int.Parse(args[1]));
 			}
+			else if (command.Equals("teejson"))
+			{
+				if (args.Length != 4)
+				{
+					PrintHeadersHelp();
+					return;
+				}
 
+				BigXMLProcess.CreateNFirstTranslationsJSON(args[2], int.Parse(args[1]), args[3]);
+			}
 			
 		}
 

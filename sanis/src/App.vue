@@ -3,6 +3,7 @@
     <TextInput v-bind:searchTerm.sync="searchTerm"/>
     <p>{{ searchTerm }}</p>
     <LanguagePairSelect />
+    <ShowResults v-bind:exactSearchTerm="searchTerm" v-bind:closestMatches="closestMatches" />
   </div>
 </template>
 
@@ -10,17 +11,37 @@
 import { Component, Vue } from 'vue-property-decorator';
 import TextInput from './components/TextInput.vue';
 import LanguagePairSelect from './components/LanguagePairSelect.vue';
+import ShowResults from './components/ShowResults.vue';
 
 @Component({
   components: {
     TextInput,
     LanguagePairSelect,
+    ShowResults,
   },
   data: function () {
-    return { searchTerm: 'abs' }
+    return { 
+      searchTerm: 'abs' as string, 
+      closestMatches: ['ab', 'bb', 'bc'] as string[], 
+      dataLoaded: false as boolean, 
+      dictionary: null as any 
+      }
   },
 })
-export default class App extends Vue {}
+
+export default class App extends Vue {
+
+  // Lifecycle hook
+  async mounted ()
+  {
+    const response = await fetch('dictionaries/1-2.json');
+    const data = await response.json();
+    this.$data.dictionary = data;
+    // console.log(data);
+    this.$data.dataLoaded = true;
+    //this.$data.searchTerm = 'arebawebawbbaw';
+  }
+}
 </script>
 
 <style>

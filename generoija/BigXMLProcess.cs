@@ -18,6 +18,10 @@ namespace Generoija
 
 		private static readonly string englishTranslation = "*englanti:";
 
+		private static readonly string licenseName = "Creative Commons Attribution-ShareAlike 3.0 Unported License (CC-BY-SA)";
+
+		private static readonly string licenseUrl = "https://en.wiktionary.org/wiki/Wiktionary:Text_of_Creative_Commons_Attribution-ShareAlike_3.0_Unported_License";
+
 		public static void PrintNFirst(string filePath, int howMany)
 		{
 			using (XmlReader reader = XmlReader.Create(filePath))
@@ -76,7 +80,13 @@ namespace Generoija
 
 				int count = 0;
 
-				Dictionary<string, Translation> translations = new Dictionary<string, Translation>();
+				// Use sorted dictionary because order of entries will be sorted when creating JSON
+				SortedDictionary<string, object> translations = new SortedDictionary<string, object>();
+
+				// Add version number and license info to JSON file in case someone need this kind of meta info
+				translations["_version"] = ParseDateAsVersion(Path.GetFileName(inputFilePath));
+				translations["_license"] = licenseName;
+				translations["_licenseUrl"] = licenseUrl;
 
 				while (BigXMLProcess.ReadToElement(reader, pageString) && count < howMany)
 				{
@@ -100,6 +110,9 @@ namespace Generoija
 					}		
 				}
 
+				Console.WriteLine($"JSON {outputFilePath} contains {count} entries");
+
+				// Output everything to single file
 				using (StreamWriter file = File.CreateText(outputFilePath))
 				{
 					JsonSerializer serializer = new JsonSerializer();
@@ -197,6 +210,12 @@ namespace Generoija
 			}
 
 			return splitted;
+		}
+
+		public static int ParseDateAsVersion(string input)
+		{
+			string[] splitted = input.Split('-');
+			return int.Parse(splitted[1]);
 		}
 	}
 }

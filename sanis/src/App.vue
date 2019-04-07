@@ -3,7 +3,7 @@
     <TextInput v-bind:searchTerm.sync="searchTerm"/>
     <p>{{ searchTerm }}</p>
     <LanguagePairSelect />
-    <ShowResults v-bind:exactSearchTerm="searchTerm" v-bind:closestMatches="closestMatches" />
+    <ShowResults v-bind:exactSearchTerm="searchTerm"  v-bind:exactMatch="getExactMatch(searchTerm)" v-bind:closestMatches="closestMatches" />
   </div>
 </template>
 
@@ -27,6 +27,16 @@ import ShowResults from './components/ShowResults.vue';
       dictionary: null as any 
       }
   },
+  methods: {
+    getExactMatch(searchKeyword: string): string {
+      if (this.$data.dictionary.hasOwnProperty(searchKeyword))
+      {
+        return this.$data.dictionary[searchKeyword];
+      }
+
+      return '';
+    }
+  }
 })
 
 export default class App extends Vue {

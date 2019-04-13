@@ -10,6 +10,9 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
+
+import { Trie } from "prefix-trie-ts";
+
 import TextInput from './components/TextInput.vue';
 import LanguagePairSelect from './components/LanguagePairSelect.vue';
 import ShowResults from './components/ShowResults.vue';
@@ -42,7 +45,9 @@ import DevLog from './components/DevLog.vue';
       }
 
       return '';
-    }
+    },
+
+    
   }
 })
 
@@ -60,6 +65,18 @@ export default class App extends Vue {
     const jsonHandleEndTime = performance.now();
 
     this.$data.devLog.push(`json handling took: ${jsonHandleEndTime - jsonHandleStartTime} milliseconds`);
+
+
+    this.$data.devLog.push(`dictionary has ${Object.keys(data).length} entries`);
+
+
+    const trieCreateStartTime = performance.now();
+
+    const trie = new Trie(Object.keys(data));
+
+    const trieCreateEndTime = performance.now();
+
+    this.$data.devLog.push(`Trie construction took: ${trieCreateEndTime - trieCreateStartTime} milliseconds`);
 
     // console.log(data);
     this.$data.dataLoaded = true;

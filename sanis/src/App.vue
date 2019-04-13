@@ -4,7 +4,7 @@
     <TextInput v-bind:searchTerm.sync="searchTerm"/>
     <p>{{ searchTerm }}</p>
     <LanguagePairSelect />
-    <ShowResults v-bind:exactSearchTerm="searchTerm"  v-bind:exactMatch="getExactMatch(searchTerm)" v-bind:closestMatches="closestMatches" />
+    <ShowResults v-bind:exactSearchTerm="searchTerm" v-bind:exactMatch="getExactMatch(searchTerm)" v-bind:closestMatches="getPartialMactches(searchTerm, 5)" />
   </div>
 </template>
 
@@ -28,9 +28,9 @@ import DevLog from './components/DevLog.vue';
   data: function () {
     return { 
       searchTerm: 'abs' as string, 
-      closestMatches: ['ab', 'bb', 'bc'] as string[], 
       dataLoaded: false as boolean, 
       dictionary: null as any,
+      currentTrie: null as any,
 
       // Development log
       devLogEnabled: false as boolean,
@@ -47,7 +47,16 @@ import DevLog from './components/DevLog.vue';
       return '';
     },
 
-    
+    getPartialMactches(searchKeyword: string, maxAmount: number): string[] {
+
+      // Do not check anything if search keyword is less than 2 chars
+      if (searchKeyword.length < 2)
+      {
+        return [];
+      }
+
+      return this.$data.currentTrie.getPrefix(searchKeyword).slice(0, maxAmount);
+    }
   }
 })
 
@@ -75,6 +84,8 @@ export default class App extends Vue {
     const trie = new Trie(Object.keys(data));
 
     const trieCreateEndTime = performance.now();
+
+    this.$data.currentTrie = trie;
 
     this.$data.devLog.push(`Trie construction took: ${trieCreateEndTime - trieCreateStartTime} milliseconds`);
 

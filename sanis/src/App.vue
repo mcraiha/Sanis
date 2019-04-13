@@ -55,7 +55,22 @@ import DevLog from './components/DevLog.vue';
         return [];
       }
 
-      return this.$data.currentTrie.getPrefix(searchKeyword).slice(0, maxAmount);
+      // Take one more in case the results also contain exact match
+      const sliced = this.$data.currentTrie.getPrefix(searchKeyword).slice(0, maxAmount + 1);
+
+      const possibleIndexOfMatch : number = sliced.indexOf(searchKeyword);
+      if (possibleIndexOfMatch > -1)
+      {
+        // Remove exact match
+        sliced.splice(possibleIndexOfMatch, 1);
+      }
+      else
+      {
+        // No exact match, so remove last array element
+        sliced.pop();
+      }
+
+      return sliced;
     }
   }
 })

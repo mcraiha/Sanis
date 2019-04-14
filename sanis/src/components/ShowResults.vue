@@ -31,7 +31,7 @@ export default class ShowResults extends Vue {
   @Prop() private exactMatch!: IDictionaryEntry;
   @Prop() private closestMatches!: IDictionaryEntry[];
 
-  private doesExactMatchContainSomething() : boolean
+  private doesExactMatchContainSomething(): boolean
   {
     return !(this.exactMatch.word == null || this.exactMatch.word.length < 1);
   }

@@ -4,14 +4,14 @@
     <TextInput v-bind:searchTerm.sync="searchTerm"/>
     <p>{{ searchTerm }}</p>
     <LanguagePairSelect />
-    <ShowResults v-bind:exactSearchTerm="searchTerm" v-bind:exactMatch="getExactMatch(searchTerm)" v-bind:closestMatches="getPartialMactches(searchTerm, 5)" />
+    <ShowResults v-bind:exactSearchTerm="searchTerm" v-bind:exactMatch="getExactMatch(searchTerm)" v-bind:closestMatches="getPartialMatches(searchTerm, 5)" />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 
-import { Trie } from "prefix-trie-ts";
+import { Trie } from 'prefix-trie-ts';
 
 import { IDictionaryEntry } from './interfaces/IDictionaryEntry';
 
@@ -27,16 +27,16 @@ import DevLog from './components/DevLog.vue';
     ShowResults,
     DevLog
   },
-  data: function () {
-    return { 
-      searchTerm: 'abs' as string, 
-      dataLoaded: false as boolean, 
+  data: function() {
+    return {
+      searchTerm: 'abs' as string,
+      dataLoaded: false as boolean,
       dictionary: null as any,
       currentTrie: null as any,
 
       // Development log
       devLogEnabled: false as boolean,
-      devLog: ['Dev log start'] as string[], 
+      devLog: ['Dev log start'] as string[],
       }
   },
   methods: {
@@ -49,12 +49,14 @@ import DevLog from './components/DevLog.vue';
       return { word: '', translations: [] };
     },
 
-    getPartialMactches(searchKeyword: string, maxAmount: number): IDictionaryEntry[] {
+    getPartialMatches(searchKeyword: string, maxAmount: number): IDictionaryEntry[] {
+
+      const returnArray: IDictionaryEntry[] = [];
 
       // Do not check anything if search keyword is less than 2 chars
       if (searchKeyword.length < 2)
       {
-        return [];
+        return returnArray;
       }
 
       // Take one more in case the results also contain exact match
@@ -62,7 +64,7 @@ import DevLog from './components/DevLog.vue';
       const sliced = this.$data.currentTrie.getPrefix(searchKeyword).slice(0, seekAmount);
       const gotEnough: boolean = (seekAmount === sliced.length);
 
-      const possibleIndexOfMatch : number = sliced.indexOf(searchKeyword);
+      const possibleIndexOfMatch: number = sliced.indexOf(searchKeyword);
       if (possibleIndexOfMatch > -1)
       {
         // Remove exact match
@@ -73,8 +75,6 @@ import DevLog from './components/DevLog.vue';
         // No exact match, and there is one match too many, so remove last array element
         sliced.pop();
       }
-
-      const returnArray: IDictionaryEntry[] = [];
 
       for (let i = 0; i < sliced.length; i++)
       {
@@ -90,7 +90,7 @@ import DevLog from './components/DevLog.vue';
 export default class App extends Vue {
 
   // Lifecycle hook
-  async mounted ()
+  public async mounted()
   {
     const jsonHandleStartTime = performance.now();
 
@@ -118,7 +118,6 @@ export default class App extends Vue {
 
     // console.log(data);
     this.$data.dataLoaded = true;
-    //this.$data.searchTerm = 'arebawebawbbaw';
   }
 }
 </script>

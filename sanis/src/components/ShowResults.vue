@@ -13,10 +13,12 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
+import { IDictionaryEntry } from '../interfaces/IDictionaryEntry';
+
 @Component
 export default class ShowResults extends Vue {
   @Prop() private exactSearchTerm!: string;
-  @Prop() private exactMatch!: string;
-  @Prop() private closestMatches!: string[];
+  @Prop() private exactMatch!: IDictionaryEntry;
+  @Prop() private closestMatches!: IDictionaryEntry[];
 }
 </script>

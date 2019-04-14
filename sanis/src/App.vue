@@ -13,6 +13,8 @@ import { Component, Vue } from 'vue-property-decorator';
 
 import { Trie } from "prefix-trie-ts";
 
+import { IDictionaryEntry } from './interfaces/IDictionaryEntry';
+
 import TextInput from './components/TextInput.vue';
 import LanguagePairSelect from './components/LanguagePairSelect.vue';
 import ShowResults from './components/ShowResults.vue';
@@ -38,16 +40,16 @@ import DevLog from './components/DevLog.vue';
       }
   },
   methods: {
-    getExactMatch(searchKeyword: string): string {
+    getExactMatch(searchKeyword: string): IDictionaryEntry {
       if (this.$data.dictionary.hasOwnProperty(searchKeyword))
       {
-        return this.$data.dictionary[searchKeyword];
+        return { word: searchKeyword, translations: this.$data.dictionary[searchKeyword].translations };
       }
 
-      return '';
+      return { word: '', translations: [] };
     },
 
-    getPartialMactches(searchKeyword: string, maxAmount: number): string[] {
+    getPartialMactches(searchKeyword: string, maxAmount: number): IDictionaryEntry[] {
 
       // Do not check anything if search keyword is less than 2 chars
       if (searchKeyword.length < 2)
@@ -56,7 +58,9 @@ import DevLog from './components/DevLog.vue';
       }
 
       // Take one more in case the results also contain exact match
-      const sliced = this.$data.currentTrie.getPrefix(searchKeyword).slice(0, maxAmount + 1);
+      const seekAmount: number = maxAmount + 1;
+      const sliced = this.$data.currentTrie.getPrefix(searchKeyword).slice(0, seekAmount);
+      const gotEnough: boolean = (seekAmount === sliced.length);
 
       const possibleIndexOfMatch : number = sliced.indexOf(searchKeyword);
       if (possibleIndexOfMatch > -1)
@@ -64,14 +68,22 @@ import DevLog from './components/DevLog.vue';
         // Remove exact match
         sliced.splice(possibleIndexOfMatch, 1);
       }
-      else
+      else if (gotEnough)
       {
-        // No exact match, so remove last array element
+        // No exact match, and there is one match too many, so remove last array element
         sliced.pop();
       }
 
-      return sliced;
-    }
+      const returnArray: IDictionaryEntry[] = [];
+
+      for (let i = 0; i < sliced.length; i++)
+      {
+        const partialMatchWord: string = sliced[i];
+        returnArray.push({ word: partialMatchWord, translations: this.$data.dictionary[partialMatchWord].translations});
+      }
+
+      return returnArray;
+    },
   }
 })
 

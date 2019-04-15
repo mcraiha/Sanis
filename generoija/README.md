@@ -4,19 +4,19 @@ Yksinkertainen C#-työkalu, jolla voidaan jäsentää Wiktionary-palvelun tarjoa
 
 ### Toiminnot
 
-#### Listaa otsikot
+#### Listaa suomenkielisestä tiedostosta (fi.wiktionary) löytyvät otsikot
 
 ```powershell
 dotnet run otsikot 2000 fiwiktionary-20190320-pages-articles-multistream.xml
 ```
 
-#### Listaa käännökset englanniksi
+#### Listaa suomenkielisestä tiedostosta (fi.wiktionary) löytyvät käännökset englanniksi
 
 ```powershell
 dotnet run kaannokset 100 fiwiktionary-20190320-pages-articles-multistream.xml
 ```
 
-#### Luo englannin käännöksistä JSON
+#### Luo suomenkielisestä tiedostosta (fi.wiktionary) löytyvistä englannin käännöksistä JSON-tiedoston
 
 ```powershell
 dotnet run teejson 100 fiwiktionary-20190320-pages-articles-multistream.xml tulos.json

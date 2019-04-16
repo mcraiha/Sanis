@@ -36,13 +36,13 @@ namespace Generoija
 			}
 			else if (command.Equals("teejson"))
 			{
-				if (args.Length != 4)
+				if (args.Length != 5)
 				{
 					PrintCreateJSONHelp();
 					return;
 				}
 
-				BigXMLProcess.CreateNFirstTranslationsJSON(args[2], int.Parse(args[1]), args[3]);
+				BigXMLProcess.CreateNFirstTranslationsJSON(args[2], int.Parse(args[1]), args[3], args[4]);
 			}
 			
 		}
@@ -61,8 +61,8 @@ namespace Generoija
 
 		private static void PrintCreateJSONHelp()
 		{
-			Console.WriteLine("teejson haluttu_määrä tiedosto_sisään tiedosto_ulos");
-			Console.WriteLine("esim: dotnet run teejson 100 fiwiktionary-20190320-pages-articles-multistream.xml tulos.json");
+			Console.WriteLine("teejson haluttu_määrä tiedosto_sisään estolista tiedosto_ulos");
+			Console.WriteLine("esim: dotnet run teejson 100 fiwiktionary-20190320-pages-articles-multistream.xml bannedwords.txt tulos.json");
 		}
 	}
 }

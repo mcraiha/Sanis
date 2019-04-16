@@ -72,18 +72,27 @@ namespace Generoija
 			}
 		}
 
-		public static void CreateNFirstTranslationsJSON(string inputFilePath, int howMany, string outputFilePath)
+		public static void CreateNFirstTranslationsJSON(string inputFilePath, int howMany, string bannedWordsListPath, string outputFilePath)
 		{
+			// Try to init blocklist for banned words
+			if (!Blocklist.LoadBlocklist(bannedWordsListPath))
+			{
+				Console.WriteLine($"Cannot load blocklist from {bannedWordsListPath}");
+				return;
+			}
+
+			Console.WriteLine($"Blocklist loaded from {bannedWordsListPath} with {Blocklist.GetWordCount()} words");
+
 			using (XmlReader reader = XmlReader.Create(inputFilePath))
 			{
 				reader.MoveToContent();
 
 				int count = 0;
 
-				// Use sorted dictionary because order of entries will be sorted when creating JSON
+				// Use sorted dictionary because order of entries will be sorted when creating JSON (this hopefully improves compression ratio)
 				SortedDictionary<string, object> translations = new SortedDictionary<string, object>();
 
-				// Add version number and license info to JSON file in case someone need this kind of meta info
+				// Add version number and license info to JSON file in case someone needs this kind of meta info
 				translations["_version"] = ParseDateAsVersion(Path.GetFileName(inputFilePath));
 				translations["_license"] = licenseName;
 				translations["_licenseUrl"] = licenseUrl;
@@ -92,6 +101,12 @@ namespace Generoija
 				{
 					BigXMLProcess.ReadToElement(reader, titleString);
 					string title = reader.ReadElementContentAsString();
+
+					if (Blocklist.IsWordBlocked(title))
+					{
+						Console.WriteLine($"Skipping word {title} since it is in blocklist");
+						continue;
+					}
 
 					BigXMLProcess.ReadToElement(reader, namespaceString);
 					string nameSpaceNumber = reader.ReadElementContentAsString();

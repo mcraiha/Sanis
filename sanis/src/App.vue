@@ -39,6 +39,15 @@ import DevLog from './components/DevLog.vue';
       devLog: ['Dev log start'] as string[],
       }
   },
+  watch: {
+    searchTerm: function (newSearchTerm, oldSearchTerm) {
+      // Update URL here, TODO: add language
+      if (newSearchTerm && newSearchTerm.length > 0)
+      {
+        history.replaceState({}, `Hakusana: ${newSearchTerm}`, `index.html?search=${newSearchTerm}`);
+      }
+    },
+  },
   methods: {
     getExactMatch(searchKeyword: string): IDictionaryEntry {
       if (this.$data.dictionary && this.$data.dictionary.hasOwnProperty(searchKeyword))
@@ -90,8 +99,6 @@ import DevLog from './components/DevLog.vue';
 
       return returnArray;
     },
-
-
   }
 })
 

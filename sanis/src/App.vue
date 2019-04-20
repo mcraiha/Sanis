@@ -41,7 +41,7 @@ import DevLog from './components/DevLog.vue';
   },
   methods: {
     getExactMatch(searchKeyword: string): IDictionaryEntry {
-      if (this.$data.dictionary.hasOwnProperty(searchKeyword))
+      if (this.$data.dictionary && this.$data.dictionary.hasOwnProperty(searchKeyword))
       {
         return { word: searchKeyword, translations: this.$data.dictionary[searchKeyword].translations };
       }
@@ -55,6 +55,12 @@ import DevLog from './components/DevLog.vue';
 
       // Do not check anything if search keyword is less than 2 chars
       if (searchKeyword.length < 2)
+      {
+        return returnArray;
+      }
+
+      // Do not check anything if trie isn't inited
+      if (!this.$data.currentTrie)
       {
         return returnArray;
       }

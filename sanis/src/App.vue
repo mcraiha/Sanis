@@ -29,7 +29,7 @@ import DevLog from './components/DevLog.vue';
   },
   data: function() {
     return {
-      searchTerm: 'abs' as string,
+      searchTerm: '' as string,
       dataLoaded: false as boolean,
       dictionary: null as any,
       currentTrie: null as any,
@@ -90,6 +90,8 @@ import DevLog from './components/DevLog.vue';
 
       return returnArray;
     },
+
+
   }
 })
 
@@ -122,8 +124,27 @@ export default class App extends Vue {
 
     this.$data.devLog.push(`Trie construction took: ${trieCreateEndTime - trieCreateStartTime} milliseconds`);
 
+    this.ParseSearchParams();
+
     // console.log(data);
     this.$data.dataLoaded = true;
+  }
+
+  private ParseSearchParams(): void
+  {
+    const params = new URLSearchParams(document.location.search.substring(1));
+    
+    const lang = params.get("lang");
+    if (lang)
+    {
+      // TODO: Handle language here
+    }
+
+    const search = params.get("search");
+    if (search)
+    {
+      this.$data.searchTerm = search;
+    }
   }
 }
 </script>

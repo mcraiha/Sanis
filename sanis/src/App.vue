@@ -5,6 +5,7 @@
     <p>{{ searchTerm }}</p>
     <LanguagePairSelect />
     <ShowResults v-bind:exactSearchTerm="searchTerm" v-bind:exactMatch="getExactMatch(searchTerm)" v-bind:closestMatches="getPartialMatches(searchTerm, 5)" />
+    <CustomFooter />
   </div>
 </template>
 
@@ -19,13 +20,15 @@ import TextInput from './components/TextInput.vue';
 import LanguagePairSelect from './components/LanguagePairSelect.vue';
 import ShowResults from './components/ShowResults.vue';
 import DevLog from './components/DevLog.vue';
+import CustomFooter from './components/CustomFooter.vue';
 
 @Component({
   components: {
     TextInput,
     LanguagePairSelect,
     ShowResults,
-    DevLog
+    DevLog,
+    CustomFooter
   },
   data: function() {
     return {

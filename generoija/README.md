@@ -17,9 +17,16 @@ dotnet run kaannokset 100 fiwiktionary-20190320-pages-articles-multistream.xml
 ```
 
 #### Luo suomenkielisestä tiedostosta (fi.wiktionary) löytyvistä englannin käännöksistä JSON-tiedoston
-Komento ton **teejson** sen jälkeen kuinka monta sanaa halutaan ottaa mukaan, sitten *fiwiktionary* -tiedosto, jonka jälkeen blocklist-sanoista, joita ei haluta ja viimeiseksi ulostulotiedoston nimi
+Komento on **teejson**, sen jälkeen kuinka monta sanaa halutaan ottaa mukaan, sitten *fiwiktionary* -tiedosto, jonka jälkeen blocklist-sanoista, joita ei haluta ja viimeiseksi ulostulotiedoston nimi
 
 Alla esimerkki
 ```powershell
 dotnet run teejson 1000000 fiwiktionary-20190320-pages-articles-multistream.xml finnish-blocklist.txt tulos.json
+```
+
+### Tulosten pakkaaminen
+
+Jos halutaan pakata vaikkapa tulos.json-tiedosto hyödyntäen Zstandard-toteutusta, olisi komento seuraavanlainen Windowsilla
+```powershell
+zstd.exe -19 tulos.json -o tulos.zst
 ```

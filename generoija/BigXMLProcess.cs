@@ -16,7 +16,7 @@ namespace Generoija
 
 		private static readonly string textString = "text";
 
-		private static readonly string englishTranslation = "*englanti:";
+		//private static readonly string englishTranslation = "*englanti:";
 
 		private static readonly string licenseName = "Creative Commons Attribution-ShareAlike 3.0 Unported License (CC-BY-SA)";
 
@@ -40,7 +40,7 @@ namespace Generoija
 			}
 		}
 
-		public static void PrintNFirstTranslations(string filePath, int howMany)
+		public static void PrintNFirstTranslations(string filePath, int howMany, string translationLanguage)
 		{
 			using (XmlReader reader = XmlReader.Create(filePath))
 			{
@@ -59,10 +59,10 @@ namespace Generoija
 					{
 						BigXMLProcess.ReadToElement(reader, textString);
 						string text = reader.ReadElementContentAsString();
-						var possibleMatch = ReturnSuitableMatch(text, englishTranslation);
+						var possibleMatch = ReturnSuitableMatch(text, translationLanguage);
 						if (possibleMatch.Item1)
 						{
-							string[] splitted = CleanAndSplitSuitable(possibleMatch.Item2);
+							string[] splitted = CleanAndSplitSuitable(possibleMatch.Item2, translationLanguage);
 
 							Console.WriteLine($"{title} - {string.Join(", ", splitted)}");
 							count++;
@@ -72,7 +72,7 @@ namespace Generoija
 			}
 		}
 
-		public static void CreateNFirstTranslationsJSON(string inputFilePath, int howMany, string bannedWordsListPath, string outputFilePath)
+		public static void CreateNFirstTranslationsJSON(string inputFilePath, int howMany, string translationLanguage, string bannedWordsListPath, string outputFilePath)
 		{
 			// Try to init blocklist for banned words
 			if (!Blocklist.LoadBlocklist(bannedWordsListPath))
@@ -114,10 +114,10 @@ namespace Generoija
 					{
 						BigXMLProcess.ReadToElement(reader, textString);
 						string text = reader.ReadElementContentAsString();
-						var possibleMatch = ReturnSuitableMatch(text, englishTranslation);
+						var possibleMatch = ReturnSuitableMatch(text, translationLanguage);
 						if (possibleMatch.Item1)
 						{
-							string[] splitted = CleanAndSplitSuitable(possibleMatch.Item2);
+							string[] splitted = CleanAndSplitSuitable(possibleMatch.Item2, translationLanguage);
 
 							translations[title] = new Translation() { translations = splitted};
 							count++;
@@ -190,9 +190,9 @@ namespace Generoija
 		private static readonly string doubleStartBracket = "{{";
 		private static readonly string doubleEndBracket = "}}";
 
-		public static string[] CleanAndSplitSuitable(string input)
+		public static string[] CleanAndSplitSuitable(string input, string translationLanguage)
 		{
-			int howManyToRemove = englishTranslation.Length;
+			int howManyToRemove = translationLanguage.Length;
 			string withoutStart = input.Remove(0, howManyToRemove);
 
 			string readyForRemoval = withoutStart.Trim();

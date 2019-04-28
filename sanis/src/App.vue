@@ -14,6 +14,8 @@ import { Component, Vue } from 'vue-property-decorator';
 
 import { Trie } from 'prefix-trie-ts';
 
+const ZstdCodec = require('zstd-codec').ZstdCodec;
+
 import { IDictionaryEntry } from './interfaces/IDictionaryEntry';
 
 import TextInput from './components/TextInput.vue';
@@ -112,32 +114,47 @@ export default class App extends Vue {
   {
     const jsonHandleStartTime = performance.now();
 
-    const response = await fetch('dictionaries/1-2.json');
-    const data = await response.json();
-    this.$data.dictionary = data;
+    const response = await fetch('dictionaries/1-2.zst');
+    const asArrayBuffer = await response.arrayBuffer();
+    const asUint8Array = new Uint8Array(asArrayBuffer);
 
-    const jsonHandleEndTime = performance.now();
+    let data = {};
+    ZstdCodec.run((zstd: any) => {
+      const simple = new zstd.Simple();
+      const jsonBytes = simple.decompress(asUint8Array);
+      const jsonText = new TextDecoder('utf-8').decode(jsonBytes);
+      
+      data = JSON.parse(jsonText);
 
-    this.$data.devLog.push(`json handling took: ${jsonHandleEndTime - jsonHandleStartTime} milliseconds`);
+      this.$data.dictionary = data;
+
+      const jsonHandleEndTime = performance.now();
+
+      this.$data.devLog.push(`json handling took: ${jsonHandleEndTime - jsonHandleStartTime} milliseconds`);
 
 
-    this.$data.devLog.push(`dictionary has ${Object.keys(data).length} entries`);
+      this.$data.devLog.push(`dictionary has ${Object.keys(data).length} entries`);
 
 
-    const trieCreateStartTime = performance.now();
+      const trieCreateStartTime = performance.now();
 
-    const trie = new Trie(Object.keys(data));
+      const trie = new Trie(Object.keys(data));
 
-    const trieCreateEndTime = performance.now();
+      const trieCreateEndTime = performance.now();
 
-    this.$data.currentTrie = trie;
+      this.$data.currentTrie = trie;
 
-    this.$data.devLog.push(`Trie construction took: ${trieCreateEndTime - trieCreateStartTime} milliseconds`);
+      this.$data.devLog.push(`Trie construction took: ${trieCreateEndTime - trieCreateStartTime} milliseconds`);
 
-    this.ParseSearchParams();
+      this.ParseSearchParams();
 
-    // console.log(data);
-    this.$data.dataLoaded = true;
+      // console.log(data);
+      this.$data.dataLoaded = true;
+     
+    });
+
+    
+    
   }
 
   private ParseSearchParams(): void

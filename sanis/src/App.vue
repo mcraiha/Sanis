@@ -24,7 +24,7 @@ import ShowResults from './components/ShowResults.vue';
 import DevLog from './components/DevLog.vue';
 import CustomFooter from './components/CustomFooter.vue';
 import { IDictionaryDefinition } from './interfaces/IDictionaryDefinition';
-import { LanguageEntries } from './definitions/LanguageEntries'
+import { LanguageEntries } from './definitions/LanguageEntries';
 
 @Component({
   components: {
@@ -32,7 +32,7 @@ import { LanguageEntries } from './definitions/LanguageEntries'
     LanguagePairSelect,
     ShowResults,
     DevLog,
-    CustomFooter
+    CustomFooter,
   },
   data: function() {
     return {
@@ -48,18 +48,16 @@ import { LanguageEntries } from './definitions/LanguageEntries'
       }
   },
   watch: {
-    searchTerm: function (newSearchTerm, oldSearchTerm) {
+    searchTerm: function(newSearchTerm, oldSearchTerm) {
       // Update URL here, TODO: add language
-      if (newSearchTerm && newSearchTerm.length > 0)
-      {
+      if (newSearchTerm && newSearchTerm.length > 0) {
         history.replaceState({}, `Hakusana: ${newSearchTerm}`, `index.html?search=${newSearchTerm}`);
       }
     },
   },
   methods: {
     getExactMatch(searchKeyword: string): IDictionaryEntry {
-      if (this.$data.dictionary && this.$data.dictionary.hasOwnProperty(searchKeyword))
-      {
+      if (this.$data.dictionary && this.$data.dictionary.hasOwnProperty(searchKeyword)) {
         return { word: searchKeyword, translations: this.$data.dictionary[searchKeyword].translations };
       }
 
@@ -71,14 +69,12 @@ import { LanguageEntries } from './definitions/LanguageEntries'
       const returnArray: IDictionaryEntry[] = [];
 
       // Do not check anything if search keyword is less than 2 chars
-      if (searchKeyword.length < 2)
-      {
+      if (searchKeyword.length < 2) {
         return returnArray;
       }
 
       // Do not check anything if trie isn't inited
-      if (!this.$data.currentTrie)
-      {
+      if (!this.$data.currentTrie) {
         return returnArray;
       }
 
@@ -88,19 +84,16 @@ import { LanguageEntries } from './definitions/LanguageEntries'
       const gotEnough: boolean = (seekAmount === sliced.length);
 
       const possibleIndexOfMatch: number = sliced.indexOf(searchKeyword);
-      if (possibleIndexOfMatch > -1)
-      {
+      if (possibleIndexOfMatch > -1) {
         // Remove exact match
         sliced.splice(possibleIndexOfMatch, 1);
       }
-      else if (gotEnough)
-      {
+      else if (gotEnough) {
         // No exact match, and there is one match too many, so remove last array element
         sliced.pop();
       }
 
-      for (let i = 0; i < sliced.length; i++)
-      {
+      for (let i = 0; i < sliced.length; i++) {
         const partialMatchWord: string = sliced[i];
         returnArray.push({ word: partialMatchWord, translations: this.$data.dictionary[partialMatchWord].translations});
       }
@@ -125,7 +118,7 @@ export default class App extends Vue {
       const simple = new zstd.Simple();
       const jsonBytes = simple.decompress(asUint8Array);
       const jsonText = new TextDecoder('utf-8').decode(jsonBytes);
-      
+
       const data = JSON.parse(jsonText);
 
       this.$data.dictionary = data;
@@ -152,24 +145,21 @@ export default class App extends Vue {
 
       // console.log(data);
       this.$data.dataLoaded = true;
-     
+
     });
-    
+
   }
 
-  private ParseSearchParams(): void
-  {
+  private ParseSearchParams(): void {
     const params = new URLSearchParams(document.location.search.substring(1));
-    
-    const lang = params.get("lang");
-    if (lang)
-    {
+
+    const lang = params.get('lang');
+    if (lang) {
       // TODO: Handle language here
     }
 
-    const search = params.get("search");
-    if (search)
-    {
+    const search = params.get('search');
+    if (search) {
       this.$data.searchTerm = search;
     }
   }

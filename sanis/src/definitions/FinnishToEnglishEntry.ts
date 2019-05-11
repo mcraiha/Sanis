@@ -8,5 +8,5 @@ export class FinnishToEnglishEntry implements IDictionaryDefinition {
     public fromUrl: string = 'https://fi.wiktionary.org/wiki/';
     public toUrl: string = 'https://en.wiktionary.org/wiki/';
 
-    public entryName : string = '🇫🇮 -> 🇺🇸';
+    public entryName: string = '🇫🇮 -> 🇺🇸';
 }

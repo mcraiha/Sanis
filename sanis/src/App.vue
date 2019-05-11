@@ -4,7 +4,7 @@
     <TextInput v-bind:searchTerm.sync="searchTerm"/>
     <p>{{ searchTerm }}</p>
     <LanguagePairSelect />
-    <ShowResults v-bind:exactSearchTerm="searchTerm" v-bind:exactMatch="getExactMatch(searchTerm)" v-bind:closestMatches="getPartialMatches(searchTerm, 5)" />
+    <ShowResults v-bind:exactSearchTerm="searchTerm" v-bind:exactMatch="getExactMatch(searchTerm)" v-bind:closestMatches="getPartialMatches(searchTerm, 5)" v-bind:dictionaryDefinition="currentDictionaryDefinition" />
     <CustomFooter />
   </div>
 </template>
@@ -23,6 +23,8 @@ import LanguagePairSelect from './components/LanguagePairSelect.vue';
 import ShowResults from './components/ShowResults.vue';
 import DevLog from './components/DevLog.vue';
 import CustomFooter from './components/CustomFooter.vue';
+import { IDictionaryDefinition } from './interfaces/IDictionaryDefinition';
+import { LanguageEntries } from './definitions/LanguageEntries'
 
 @Component({
   components: {
@@ -38,6 +40,7 @@ import CustomFooter from './components/CustomFooter.vue';
       dataLoaded: false as boolean,
       dictionary: null as any,
       currentTrie: null as any,
+      currentDictionaryDefinition: LanguageEntries.entries[0] as IDictionaryDefinition,
 
       // Development log
       devLogEnabled: false as boolean,

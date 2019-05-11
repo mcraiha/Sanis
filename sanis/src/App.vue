@@ -118,13 +118,12 @@ export default class App extends Vue {
     const asArrayBuffer = await response.arrayBuffer();
     const asUint8Array = new Uint8Array(asArrayBuffer);
 
-    let data = {};
     ZstdCodec.run((zstd: any) => {
       const simple = new zstd.Simple();
       const jsonBytes = simple.decompress(asUint8Array);
       const jsonText = new TextDecoder('utf-8').decode(jsonBytes);
       
-      data = JSON.parse(jsonText);
+      const data = JSON.parse(jsonText);
 
       this.$data.dictionary = data;
 
@@ -152,8 +151,6 @@ export default class App extends Vue {
       this.$data.dataLoaded = true;
      
     });
-
-    
     
   }
 

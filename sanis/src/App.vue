@@ -110,8 +110,7 @@ import { LanguageEntries } from './definitions/LanguageEntries';
 export default class App extends Vue {
 
   // Lifecycle hook
-  public async mounted()
-  {
+  public async mounted() {
     const jsonHandleStartTime = performance.now();
 
     const response = await fetch('dictionaries/1-2.zst');

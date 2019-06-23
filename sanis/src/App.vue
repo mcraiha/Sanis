@@ -40,7 +40,8 @@ import { LanguageEntries } from './definitions/LanguageEntries';
       dataLoaded: false as boolean,
       dictionary: null as any,
       currentTrie: null as any,
-      currentDictionaryDefinition: LanguageEntries.entries[0] as IDictionaryDefinition,
+      currentDictionaryIndex: 0 as number,
+      currentDictionaryDefinition: null as unknown,
 
       // Development log
       devLogEnabled: false as boolean,
@@ -112,6 +113,8 @@ export default class App extends Vue {
   // Lifecycle hook
   public async mounted() {
     const jsonHandleStartTime = performance.now();
+
+    this.$data.currentDictionaryDefinition = LanguageEntries.entries[this.$data.currentDictionaryIndex];
 
     const response = await fetch('dictionaries/1-2.zst');
     const asArrayBuffer = await response.arrayBuffer();

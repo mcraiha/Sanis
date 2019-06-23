@@ -1,18 +1,21 @@
 <template>
   <div class="selectLanguagePair">
     <select v-on:change="languagePairUpdated($event)">
-    <option value="1-1">🇫🇮 -> 🇫🇮</option>
-    <option value="1-2">🇫🇮 -> 🇺🇸</option>
-    <option value="2-1">🇺🇸 -> 🇫🇮</option>
-  </select>
+      <option v-for="(pair, index) in pairs" v-bind:value="index">
+        {{ pair.entryName }}
+      </option>
+    </select>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import { IDictionaryDefinition } from '../interfaces/IDictionaryDefinition';
 
 @Component
 export default class LanguagePairSelect extends Vue {
+  @Prop() private pairs!: IDictionaryDefinition[];
+
   private languagePairUpdated(event: any) {
       console.log(event.target.value);
   }

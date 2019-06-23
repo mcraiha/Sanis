@@ -3,7 +3,7 @@
     <DevLog v-bind:devLogs="devLog" />
     <TextInput v-bind:searchTerm.sync="searchTerm"/>
     <p>{{ searchTerm }}</p>
-    <LanguagePairSelect />
+    <LanguagePairSelect v-bind:pairs="getAllLanguagePairEntries()" />
     <ShowResults v-bind:exactSearchTerm="searchTerm" v-bind:exactMatch="getExactMatch(searchTerm)" v-bind:closestMatches="getPartialMatches(searchTerm, 5)" v-bind:dictionaryDefinition="currentDictionaryDefinition" />
     <CustomFooter />
   </div>
@@ -62,6 +62,10 @@ import { LanguageEntries } from './definitions/LanguageEntries';
       }
 
       return { word: '', translations: [] };
+    },
+
+    getAllLanguagePairEntries(): IDictionaryDefinition[] {
+      return LanguageEntries.entries;
     },
 
     getPartialMatches(searchKeyword: string, maxAmount: number): IDictionaryEntry[] {

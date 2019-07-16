@@ -110,15 +110,30 @@ import { LanguageEntries } from './definitions/LanguageEntries';
 
 export default class App extends Vue {
 
+
   // Lifecycle hook
   public async mounted() {
     const jsonHandleStartTime = performance.now();
 
     this.$data.currentDictionaryDefinition = LanguageEntries.entries[this.$data.currentDictionaryIndex];
 
-    const response = await fetch('dictionaries/1-2.zst');
-    const asArrayBuffer = await response.arrayBuffer();
-    const asUint8Array = new Uint8Array(asArrayBuffer);
+    const filename: string = '1-2.zst';
+
+    let asUint8Array: Uint8Array = new Uint8Array(); // Default value is not used
+
+    if (this.CheckIfWeHaveToDownload(this.$data.currentDictionaryDefinition)) {
+      this.$data.devLog.push(`Downloading from server`);
+      asUint8Array = await this.DownloadAndStoreToLocalStorage(filename);
+    }
+    else {
+      this.$data.devLog.push(`Downloading from local storage`);
+      asUint8Array = this.LoadFileFromLocalStorage(filename);
+      this.DoUpdateIfNeeded(filename);
+    }
+
+    //const response = await fetch();
+    //const asArrayBuffer = await response.arrayBuffer();
+    //const asUint8Array = new Uint8Array(asArrayBuffer);
 
     ZstdCodec.run((zstd: any) => {
       const simple = new zstd.Simple();
@@ -169,6 +184,89 @@ export default class App extends Vue {
       this.$data.searchTerm = search;
     }
   }
+
+  private CheckIfWeHaveToDownload(dictionaryDefinition: IDictionaryDefinition): boolean {
+    const finalFilename = this.GetFilenameFromDefinition(dictionaryDefinition);
+
+    if (localStorage.getItem(finalFilename) === null) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private async DownloadAndStoreToLocalStorage(filename: string): Promise<Uint8Array> {
+    
+    // Download wanted dictionary
+    const response = await fetch(`dictionaries/${filename}`);
+    const asArrayBuffer = await response.arrayBuffer();
+    const asUint8Array = new Uint8Array(asArrayBuffer);
+
+    // Store downloaded dictionary, file size and timestamp to localStorage
+    const base64String = btoa(asUint8Array.reduce((data, byte) => data + String.fromCharCode(byte), ''));
+    localStorage.setItem(filename, base64String);
+
+    const currentTimeStampAsString: string = Date.now().toString();
+    localStorage.setItem(this.GetUpdateTimeKeyName(filename), currentTimeStampAsString);
+
+    const lengthAsString = this.GetLengthFromResponse(response);
+    localStorage.setItem(this.GetSizeKeyName(filename), lengthAsString);
+
+    return asUint8Array;
+  }
+
+  private async CheckLengthMatchFromHeadersWithoutFullDownload(filename: string): Promise<boolean> {
+    const response = await fetch(`dictionaries/${filename}`, {method: 'HEAD'});
+    if (this.GetLengthFromResponse(response) === localStorage.getItem(this.GetSizeKeyName(filename))) {
+      return true;
+    }
+    
+    return false;
+  }
+
+  private GetLengthFromResponse(response: Response): string {
+    return response.headers.get('content-length')!;
+  }
+
+  private LoadFileFromLocalStorage(filename: string): Uint8Array {
+    const base64String: string = localStorage.getItem(filename)!; // We are sure that we have something in localStorage
+    return Uint8Array.from(atob(base64String), c => c.charCodeAt(0));
+  }
+
+  private async DoUpdateIfNeeded(filename: string): Promise<void> {
+    const finalKeyName = this.GetUpdateTimeKeyName(filename);
+
+    const lastUpdateTimeAsUnixMilliseconds: string = localStorage.getItem(finalKeyName)!;
+    const numberUnixMilliseconds: number = +lastUpdateTimeAsUnixMilliseconds;
+
+    const compareDate: number = new Date(Date.now() - 12096e5).getTime(); // 12096e5 is 14 days in milliseconds
+
+    if (compareDate > numberUnixMilliseconds) {
+      const areSizesIdentical: boolean = await this.CheckLengthMatchFromHeadersWithoutFullDownload(filename);
+      if (!areSizesIdentical) {
+        // Do update since data has been updated
+        this.DownloadAndStoreToLocalStorage(filename);
+      }
+    }
+  }
+
+
+  private GetFilenameFromDefinition(dictionaryDefinition: IDictionaryDefinition): string {
+    if (dictionaryDefinition === null) {
+      return 'ERROR!';
+    }
+
+    return `${dictionaryDefinition.from}-${dictionaryDefinition.to}.zst`;
+  }
+
+  private GetUpdateTimeKeyName(filename: string) {
+    return `${filename}_timestamp`;
+  }
+
+  private GetSizeKeyName(filename: string) {
+    return `${filename}_size`;
+  }
+
 }
 </script>
 

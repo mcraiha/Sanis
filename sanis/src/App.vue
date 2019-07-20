@@ -247,6 +247,11 @@ export default class App extends Vue {
         // Do update since data has been updated
         this.DownloadAndStoreToLocalStorage(filename);
       }
+      else {
+        // Update timestamp since file has not changed
+        const currentTimeStampAsString: string = Date.now().toString();
+        localStorage.setItem(finalKeyName, currentTimeStampAsString);
+      }
     }
   }
 

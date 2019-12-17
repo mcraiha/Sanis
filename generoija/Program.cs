@@ -32,7 +32,7 @@ namespace Generoija
 					return;
 				}
 
-				BigXMLProcess.PrintNFirstTranslations(args[3], int.Parse(args[1]), args[2]);
+				BigXMLProcess.PrintNFirstTranslations(filePath: args[3], howMany: int.Parse(args[1]), translationLanguage: RemoveQuotesIfNeeded(args[2]));
 			}
 			else if (command.Equals("teejson"))
 			{
@@ -42,7 +42,7 @@ namespace Generoija
 					return;
 				}
 
-				BigXMLProcess.CreateNFirstTranslationsJSON(args[3], int.Parse(args[1]), args[2], args[4], args[5]);
+				BigXMLProcess.CreateNFirstTranslationsJSON(inputFilePath: args[3], howMany: int.Parse(args[1]), translationLanguage: args[2], bannedWordsListPath: args[4], outputFilePath: args[5]);
 			}
 			
 		}
@@ -57,12 +57,23 @@ namespace Generoija
 		{
 			Console.WriteLine("kaannokset haluttu_määrä etsittävä tiedosto_sisään");
 			Console.WriteLine("esim: dotnet run kaannokset 100 *englanti: fiwiktionary-20190320-pages-articles-multistream.xml");
+			Console.WriteLine("dotnet run kaannokset 100 \"* Finnish:\" enwiktionary-20190420-pages-articles-multistream.xml");
 		}
 
 		private static void PrintCreateJSONHelp()
 		{
 			Console.WriteLine("teejson haluttu_määrä etsittävä tiedosto_sisään estolista tiedosto_ulos");
 			Console.WriteLine("esim: dotnet run teejson 100 *englanti: fiwiktionary-20190320-pages-articles-multistream.xml bannedwords.txt tulos.json");
+		}
+
+		private static string RemoveQuotesIfNeeded(string input)
+		{
+			if (input != null && input.Length > 1 && input[0] == '"' && input[input.Length - 1] == '"')
+			{
+				return input.Substring(1, input.Length - 2);
+			}
+
+			return input;
 		}
 	}
 }

@@ -22,9 +22,9 @@ namespace Generoija
 
 		private static readonly string licenseUrl = "https://en.wiktionary.org/wiki/Wiktionary:Text_of_Creative_Commons_Attribution-ShareAlike_3.0_Unported_License";
 
-		public static void PrintNFirst(string filePath, int howMany)
+		public static void PrintNFirst(string inputXMLfilePath, int howMany)
 		{
-			using (XmlReader reader = XmlReader.Create(filePath))
+			using (XmlReader reader = XmlReader.Create(inputXMLfilePath))
 			{
 				reader.MoveToContent();
 
@@ -40,9 +40,29 @@ namespace Generoija
 			}
 		}
 
-		public static void PrintNFirstTranslations(string filePath, int howMany, string translationLanguage)
+		public static void PrintNFirst(string inputXMLfilePath, int howMany, string outputFilePath)
 		{
-			using (XmlReader reader = XmlReader.Create(filePath))
+			using (XmlReader reader = XmlReader.Create(inputXMLfilePath))
+			{
+				reader.MoveToContent();
+
+				int count = 0;
+				using (TextWriter writer = File.CreateText(outputFilePath))
+				{
+					while (BigXMLProcess.ReadToElement(reader, pageString) && count < howMany)
+					{
+						BigXMLProcess.ReadToElement(reader, titleString);
+						string title = reader.ReadElementContentAsString();
+						writer.WriteLine(title);
+						count++;
+					}
+				}
+			}
+		}
+
+		public static void PrintNFirstTranslations(string inputXMLfilePath, int howMany, string translationLanguage)
+		{
+			using (XmlReader reader = XmlReader.Create(inputXMLfilePath))
 			{
 				reader.MoveToContent();
 
@@ -64,6 +84,12 @@ namespace Generoija
 						{
 							string[] splitted = CleanAndSplitSuitable(possibleMatch.Item2, translationLanguage);
 
+							/* if (title.Contains("book"))
+							{
+								Console.WriteLine(possibleMatch.Item2);
+							}*/
+
+
 							Console.WriteLine($"{title} - {string.Join(", ", splitted)}");
 							count++;
 						}
@@ -72,7 +98,7 @@ namespace Generoija
 			}
 		}
 
-		public static void CreateNFirstTranslationsJSON(string inputFilePath, int howMany, string translationLanguage, string bannedWordsListPath, string outputFilePath)
+		public static void CreateNFirstTranslationsJSON(string inputXMLfilePath, int howMany, string translationLanguage, string bannedWordsListPath, string outputFilePath)
 		{
 			// Try to init blocklist for banned words
 			if (!Blocklist.LoadBlocklist(bannedWordsListPath))
@@ -83,7 +109,7 @@ namespace Generoija
 
 			Console.WriteLine($"Blocklist loaded from {bannedWordsListPath} with {Blocklist.GetWordCount()} words");
 
-			using (XmlReader reader = XmlReader.Create(inputFilePath))
+			using (XmlReader reader = XmlReader.Create(inputXMLfilePath))
 			{
 				reader.MoveToContent();
 
@@ -93,7 +119,7 @@ namespace Generoija
 				SortedDictionary<string, object> translations = new SortedDictionary<string, object>();
 
 				// Add version number and license info to JSON file in case someone needs this kind of meta info
-				translations["_version"] = ParseDateAsVersion(Path.GetFileName(inputFilePath));
+				translations["_version"] = ParseDateAsVersion(Path.GetFileName(inputXMLfilePath));
 				translations["_license"] = licenseName;
 				translations["_licenseUrl"] = licenseUrl;
 
@@ -119,7 +145,7 @@ namespace Generoija
 						{
 							string[] splitted = CleanAndSplitSuitable(possibleMatch.Item2, translationLanguage);
 
-							translations[title] = new Translation() { translations = splitted};
+							translations[title] = new Translation() { t = splitted};
 							count++;
 						}
 					}		
@@ -187,6 +213,9 @@ namespace Generoija
 
 		private static readonly char[] charsToRemove = new char[] { '[', ']'};
 
+		// For entries that are additionally splitted with |
+		private static readonly List<string> stringsToRemove = new List<string> { "langname=", "interwiki=" };
+
 		private static readonly string doubleStartBracket = "{{";
 		private static readonly string doubleEndBracket = "}}";
 
@@ -211,7 +240,20 @@ namespace Generoija
 					if (splitted[i].Contains('|'))
 					{
 						string[] splittedAgain = splitted[i].Split('|');
-						splitted[i] = splittedAgain[splittedAgain.Length - 1].Replace(doubleEndBracket, "");
+						List<string> splittedAgainList = new List<string>(splittedAgain);
+
+						// Remove certain unwanted elements
+						splittedAgainList.RemoveAll(item => item.StartsWith(stringsToRemove[0]) || item.StartsWith(stringsToRemove[1]));
+
+						int wantedIndex = splittedAgainList.Count - 1;
+						Console.WriteLine($"{wantedIndex} {splittedAgainList[wantedIndex]}");
+						if (splittedAgainList[wantedIndex].Length < 2 && wantedIndex > 0)
+						{
+							wantedIndex--;
+							Console.WriteLine("--miinu");
+						}
+
+						splitted[i] = splittedAgainList[wantedIndex].Replace(doubleEndBracket, "");
 					}
 					else
 					{
@@ -219,6 +261,12 @@ namespace Generoija
 						int removeEndIndex = splitted[i].IndexOf(doubleEndBracket) + doubleEndBracket.Length;
 						splitted[i] = splitted[i].Remove(removeStartIndex, removeEndIndex - removeStartIndex);
 					}		
+				}
+				else if (splitted[i].Contains('|'))
+				{
+					string[] splittedAgain = splitted[i].Split('|');
+					int wantedIndex = splittedAgain.Length - 1;
+					splitted[i] = splittedAgain[wantedIndex];
 				}
 
 				splitted[i] = splitted[i].Trim();

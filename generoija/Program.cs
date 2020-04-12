@@ -16,13 +16,20 @@ namespace Generoija
 
 			if (command.Equals("otsikot"))
 			{
-				if (args.Length != 3)
+				if (args.Length != 3 && args.Length != 4)
 				{
 					PrintHeadersHelp();
 					return;
 				}
 
-				BigXMLProcess.PrintNFirst(args[2], int.Parse(args[1]));
+				if (args.Length == 3)
+				{
+					BigXMLProcess.PrintNFirst(inputXMLfilePath: args[2], howMany: int.Parse(args[1]));
+				}
+				else if (args.Length == 4)
+				{
+					BigXMLProcess.PrintNFirst(inputXMLfilePath: args[2], howMany: int.Parse(args[1]), outputFilePath: args[3]);
+				}
 			}
 			else if (command.Equals("kaannokset"))
 			{
@@ -32,7 +39,7 @@ namespace Generoija
 					return;
 				}
 
-				BigXMLProcess.PrintNFirstTranslations(filePath: args[3], howMany: int.Parse(args[1]), translationLanguage: RemoveQuotesIfNeeded(args[2]));
+				BigXMLProcess.PrintNFirstTranslations(inputXMLfilePath: args[3], howMany: int.Parse(args[1]), translationLanguage: RemoveQuotesIfNeeded(args[2]));
 			}
 			else if (command.Equals("teejson"))
 			{
@@ -42,14 +49,23 @@ namespace Generoija
 					return;
 				}
 
-				BigXMLProcess.CreateNFirstTranslationsJSON(inputFilePath: args[3], howMany: int.Parse(args[1]), translationLanguage: args[2], bannedWordsListPath: args[4], outputFilePath: args[5]);
+				BigXMLProcess.CreateNFirstTranslationsJSON(inputXMLfilePath: args[3], howMany: int.Parse(args[1]), translationLanguage: args[2], bannedWordsListPath: args[4], outputFilePath: args[5]);
 			}
-			
+			else if (command.Equals("mehusta"))
+			{
+				if (args.Length != 5)
+				{
+					PrintCreateJuicedJSONsHelp();
+					return;
+				}
+
+				JsonProcess.JuiceJsonFiles(args[1], args[2], args[3], args[4]);
+			}
 		}
 
 		private static void PrintHeadersHelp()
 		{
-			Console.WriteLine("otsikot haluttu_määrä tiedosto_sisään");
+			Console.WriteLine("otsikot haluttu_määrä tiedosto_sisään [mahdollinen_tiedosto_ulos]");
 			Console.WriteLine("esim: dotnet run otsikot 2000 fiwiktionary-20190320-pages-articles-multistream.xml");
 		}
 
@@ -64,6 +80,12 @@ namespace Generoija
 		{
 			Console.WriteLine("teejson haluttu_määrä etsittävä tiedosto_sisään estolista tiedosto_ulos");
 			Console.WriteLine("esim: dotnet run teejson 100 *englanti: fiwiktionary-20190320-pages-articles-multistream.xml bannedwords.txt tulos.json");
+		}
+
+		private static void PrintCreateJuicedJSONsHelp()
+		{
+			Console.WriteLine("mehustus kielitiedosto1.json kielitiedosto2.json kielitiedosto1_mehustettu.json kielitiedosto2_mehustettu.json");
+			Console.WriteLine("esim: dotnet run finnish.json english.json finnish_boosted.json english_boosted.json");
 		}
 
 		private static string RemoveQuotesIfNeeded(string input)

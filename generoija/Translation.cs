@@ -1,7 +1,17 @@
 namespace Generoija
 {
-	public class Translation
+	public sealed class Translation
 	{
-		public string[] translations { get; set; }
+		/// <summary>
+		/// Translations
+		/// </summary>
+		/// <value></value>
+		public string[] t { get; set; }
+
+		/// <summary>
+		/// Links, o (original only), t (translation only) and b (both)
+		/// </summary>
+		/// <value></value>
+		public string[] l { get; set; }
 	} 
 }

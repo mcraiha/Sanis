@@ -1,6 +1,9 @@
 ## Generoija
 
-Yksinkertainen C#-työkalu, jolla voidaan jäsentää Wiktionary-palvelun tarjoamia XML-tiedostoja. Vaatii [dotnet coren](https://dotnet.microsoft.com/download).
+Yksinkertainen C#-työkalu, jolla voidaan jäsentää Wiktionary-palvelun tarjoamia XML-tiedostoja. Vaatii [dotnet coren](https://dotnet.microsoft.com/download).  
+
+Suomenkieliset alkuperäistiedostot löytyvät https://dumps.wikimedia.org/fiwiktionary/  
+Englanninkieliset alkuperäistiedostot löytyvät https://dumps.wikimedia.org/enwiktionary/
 
 ### Toiminnot
 

@@ -84,8 +84,8 @@ namespace Generoija
 
 		private static void PrintCreateJuicedJSONsHelp()
 		{
-			Console.WriteLine("mehustus kielitiedosto1.json kielitiedosto2.json kielitiedosto1_mehustettu.json kielitiedosto2_mehustettu.json");
-			Console.WriteLine("esim: dotnet run finnish.json english.json finnish_boosted.json english_boosted.json");
+			Console.WriteLine("mehusta kielitiedosto1.json kielitiedosto2.json kielitiedosto1_mehustettu.json kielitiedosto2_mehustettu.json");
+			Console.WriteLine("esim: dotnet run mehusta finnish.json english.json finnish_boosted.json english_boosted.json");
 		}
 
 		private static string RemoveQuotesIfNeeded(string input)

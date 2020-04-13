@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Generoija
 {
@@ -9,60 +10,83 @@ namespace Generoija
 	{
 		public static void JuiceJsonFiles(string firstTranslationInputFilePath, string secondTranslationInputFilePath, string firstTranslationOutputFilePath, string secondTranslationOutputFilePath)
 		{
-			SortedDictionary<string, Translation> translationsFirst = JsonConvert.DeserializeObject<SortedDictionary<string, Translation>>(File.ReadAllText(firstTranslationInputFilePath));
-			SortedDictionary<string, Translation> translationsSecond = JsonConvert.DeserializeObject<SortedDictionary<string, Translation>>(File.ReadAllText(secondTranslationInputFilePath));
+			SortedDictionary<string, object> translationsFirst = JsonConvert.DeserializeObject<SortedDictionary<string, object>>(File.ReadAllText(firstTranslationInputFilePath));
+			SortedDictionary<string, object> translationsFirstForModification = new SortedDictionary<string, object>(translationsFirst);
+			Console.WriteLine($"Ensimmaisessa pareja yhteensa {translationsFirst.Count}");
+
+			SortedDictionary<string, object> translationsSecond = JsonConvert.DeserializeObject<SortedDictionary<string, object>>(File.ReadAllText(secondTranslationInputFilePath));
+			SortedDictionary<string, object> translationsSecondForModification = new SortedDictionary<string, object>(translationsSecond);
+			Console.WriteLine($"Toisessa pareja yhteensa {translationsSecond.Count}");
 
 			foreach (var pair in translationsFirst)
 			{
-				pair.Value.l = new string[pair.Value.t.Length];
-				for (int i = 0; i < pair.Value.l.Length; i++)
+				if (pair.Key.StartsWith("_"))
 				{
-					if (translationsFirst.ContainsKey(pair.Value.t[i]) && translationsSecond.ContainsKey(pair.Value.t[i]))
+					continue;
+				}
+
+				Translation translation = ((JObject)(pair.Value)).ToObject<Translation>();
+				translation.l = new string[translation.t.Length];
+
+				for (int i = 0; i < translation.l.Length; i++)
+				{
+					if (translationsFirst.ContainsKey(translation.t[i]) && translationsSecond.ContainsKey(translation.t[i]))
 					{
-						pair.Value.l[i] = "b";
+						translation.l[i] = "b";
 					}
-					else if (translationsFirst.ContainsKey(pair.Value.t[i]))
+					else if (translationsFirst.ContainsKey(translation.t[i]))
 					{
-						pair.Value.l[i] = "o";
+						translation.l[i] = "o";
 					}
-					else if (translationsSecond.ContainsKey(pair.Value.t[i]))
+					else if (translationsSecond.ContainsKey(translation.t[i]))
 					{
-						pair.Value.l[i] = "t";
+						translation.l[i] = "t";
 					}
 					else
 					{
-						pair.Value.l[i] = "";
+						translation.l[i] = "";
 					}
 				}
+
+				translationsFirstForModification[pair.Key] = translation;
 			}
 
 			foreach (var pair in translationsSecond)
 			{
-				pair.Value.l = new string[pair.Value.t.Length];
-				for (int i = 0; i < pair.Value.l.Length; i++)
+				if (pair.Key.StartsWith("_"))
 				{
-					if (translationsFirst.ContainsKey(pair.Value.t[i]) && translationsSecond.ContainsKey(pair.Value.t[i]))
+					continue;
+				}
+
+				Translation translation = ((JObject)(pair.Value)).ToObject<Translation>();
+				translation.l = new string[translation.t.Length];
+
+				for (int i = 0; i < translation.l.Length; i++)
+				{
+					if (translationsFirst.ContainsKey(translation.t[i]) && translationsSecond.ContainsKey(translation.t[i]))
 					{
-						pair.Value.l[i] = "b";
+						translation.l[i] = "b";
 					}
-					else if (translationsSecond.ContainsKey(pair.Value.t[i]))
+					else if (translationsSecond.ContainsKey(translation.t[i]))
 					{
-						pair.Value.l[i] = "o";
+						translation.l[i] = "o";
 					}
-					else if (translationsFirst.ContainsKey(pair.Value.t[i]))
+					else if (translationsFirst.ContainsKey(translation.t[i]))
 					{
-						pair.Value.l[i] = "t";
+						translation.l[i] = "t";
 					}
 					else
 					{
-						pair.Value.l[i] = "";
+						translation.l[i] = "";
 					}
 				}
+
+				translationsSecondForModification[pair.Key] = translation;
 			}
 
-			File.WriteAllText(firstTranslationOutputFilePath, JsonConvert.SerializeObject(translationsFirst, Formatting.None));
+			File.WriteAllText(firstTranslationOutputFilePath, JsonConvert.SerializeObject(translationsFirstForModification, Formatting.None));
 
-			File.WriteAllText(secondTranslationOutputFilePath, JsonConvert.SerializeObject(translationsSecond, Formatting.None));
+			File.WriteAllText(secondTranslationOutputFilePath, JsonConvert.SerializeObject(translationsSecondForModification, Formatting.None));
 		}
 	}
 }

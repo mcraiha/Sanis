@@ -59,10 +59,10 @@ import { LanguageEntries } from './definitions/LanguageEntries';
   methods: {
     getExactMatch(searchKeyword: string): IDictionaryEntry {
       if (this.$data.dictionary && this.$data.dictionary.hasOwnProperty(searchKeyword)) {
-        return { word: searchKeyword, translations: this.$data.dictionary[searchKeyword].translations };
+        return { word: searchKeyword, translations: this.$data.dictionary[searchKeyword].translations, links: this.$data.dictionary[searchKeyword].links };
       }
 
-      return { word: '', translations: [] };
+      return { word: '', translations: [], links: [] };
     },
 
     getAllLanguagePairEntries(): IDictionaryDefinition[] {
@@ -100,7 +100,7 @@ import { LanguageEntries } from './definitions/LanguageEntries';
 
       for (let i = 0; i < sliced.length; i++) {
         const partialMatchWord: string = sliced[i];
-        returnArray.push({ word: partialMatchWord, translations: this.$data.dictionary[partialMatchWord].translations});
+        returnArray.push({ word: partialMatchWord, translations: this.$data.dictionary[partialMatchWord].translations, links: this.$data.dictionary[partialMatchWord].links});
       }
 
       return returnArray;
@@ -124,8 +124,7 @@ export default class App extends Vue {
     if (this.CheckIfWeHaveToDownload(this.$data.currentDictionaryDefinition)) {
       this.$data.devLog.push(`Downloading from server`);
       asUint8Array = await this.DownloadAndStoreToLocalStorage(filename);
-    }
-    else {
+    } else {
       this.$data.devLog.push(`Downloading from local storage`);
       asUint8Array = this.LoadFileFromLocalStorage(filename);
       this.DoUpdateIfNeeded(filename);
@@ -140,7 +139,13 @@ export default class App extends Vue {
       const jsonBytes = simple.decompress(asUint8Array);
       const jsonText = new TextDecoder('utf-8').decode(jsonBytes);
 
-      const data = JSON.parse(jsonText);
+      const wireData = JSON.parse(jsonText);
+
+      const data: {[k: string]: any} = {};
+
+      for (const key in wireData) {
+        data[key] = { translations: wireData[key].t, links: wireData[key].l };
+      }
 
       this.$data.dictionary = data;
 
@@ -148,9 +153,7 @@ export default class App extends Vue {
 
       this.$data.devLog.push(`json handling took: ${jsonHandleEndTime - jsonHandleStartTime} milliseconds`);
 
-
       this.$data.devLog.push(`dictionary has ${Object.keys(data).length} entries`);
-
 
       const trieCreateStartTime = performance.now();
 
@@ -196,7 +199,7 @@ export default class App extends Vue {
   }
 
   private async DownloadAndStoreToLocalStorage(filename: string): Promise<Uint8Array> {
-    
+  
     // Download wanted dictionary
     const response = await fetch(`dictionaries/${filename}`);
     const asArrayBuffer = await response.arrayBuffer();
@@ -220,7 +223,6 @@ export default class App extends Vue {
     if (this.GetLengthFromResponse(response) === localStorage.getItem(this.GetSizeKeyName(filename))) {
       return true;
     }
-    
     return false;
   }
 
@@ -246,8 +248,7 @@ export default class App extends Vue {
       if (!areSizesIdentical) {
         // Do update since data has been updated
         this.DownloadAndStoreToLocalStorage(filename);
-      }
-      else {
+      } else {
         // Update timestamp since file has not changed
         const currentTimeStampAsString: string = Date.now().toString();
         localStorage.setItem(finalKeyName, currentTimeStampAsString);

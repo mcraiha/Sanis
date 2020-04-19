@@ -58,8 +58,9 @@ import { LanguageEntries } from './definitions/LanguageEntries';
   },
   methods: {
     getExactMatch(searchKeyword: string): IDictionaryEntry {
-      if (this.$data.dictionary && this.$data.dictionary.hasOwnProperty(searchKeyword)) {
-        return { word: searchKeyword, translations: this.$data.dictionary[searchKeyword].translations, links: this.$data.dictionary[searchKeyword].links };
+      const lowerCaseToSeek : string = searchKeyword.toLowerCase();
+      if (this.$data.dictionary && this.$data.dictionary.hasOwnProperty(lowerCaseToSeek)) {
+        return { word: this.$data.dictionary[lowerCaseToSeek].word, translations: this.$data.dictionary[lowerCaseToSeek].translations, links: this.$data.dictionary[lowerCaseToSeek].links };
       }
 
       return { word: '', translations: [], links: [] };
@@ -99,8 +100,10 @@ import { LanguageEntries } from './definitions/LanguageEntries';
       }
 
       for (let i = 0; i < sliced.length; i++) {
-        const partialMatchWord: string = sliced[i];
-        returnArray.push({ word: partialMatchWord, translations: this.$data.dictionary[partialMatchWord].translations, links: this.$data.dictionary[partialMatchWord].links});
+        // Take lowercase because all of our keys are lowercase
+        const partialMatchWord: string = sliced[i].toLowerCase();
+
+        returnArray.push({ word: this.$data.dictionary[partialMatchWord].word, translations: this.$data.dictionary[partialMatchWord].translations, links: this.$data.dictionary[partialMatchWord].links});
       }
 
       return returnArray;
@@ -144,7 +147,8 @@ export default class App extends Vue {
       const data: {[k: string]: any} = {};
 
       for (const key in wireData) {
-        data[key] = { translations: wireData[key].t, links: wireData[key].l };
+        // We need more info so we have to "juice up" the wireData format before we use it 
+        data[key.toLowerCase()] = { word: key, translations: wireData[key].t, links: wireData[key].l };
       }
 
       this.$data.dictionary = data;

@@ -17,7 +17,8 @@ export default class LanguagePairSelect extends Vue {
   @Prop() private pairs!: IDictionaryDefinition[];
 
   private languagePairUpdated(event: any) {
-      console.log(event.target.value);
+      //console.log(event.target.value);
+      this.$emit('selected', event.target.value);
   }
 }
 </script>

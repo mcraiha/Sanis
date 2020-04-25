@@ -3,7 +3,7 @@
     <DevLog v-bind:devLogs="devLog" />
     <TextInput v-bind:searchTerm.sync="searchTerm"/>
     <p>{{ searchTerm }}</p>
-    <LanguagePairSelect v-bind:pairs="getAllLanguagePairEntries()" />
+    <LanguagePairSelect v-bind:pairs="getAllLanguagePairEntries()" @selected="onSelected" />
     <ShowResults v-bind:exactSearchTerm="searchTerm" v-bind:exactMatch="getExactMatch(searchTerm)" v-bind:closestMatches="getPartialMatches(searchTerm, 5)" v-bind:dictionaryDefinition="currentDictionaryDefinition" />
     <CustomFooter />
   </div>
@@ -38,6 +38,7 @@ import { Languages } from './definitions/LanguageEnums';
   data: function() {
     return {
       searchTerm: '' as string,
+      searchLanguage: '' as string,
       dataLoaded: false as boolean,
       dictionary: null as any,
       currentTrie: null as any,
@@ -56,6 +57,9 @@ import { Languages } from './definitions/LanguageEnums';
         history.replaceState({}, `Hakusana: ${newSearchTerm}`, `index.html?lang=${this.$data.currentDictionaryDefinition.from}-${this.$data.currentDictionaryDefinition.to}&search=${newSearchTerm}`);
       }
     },
+    searchLanguage: function(newSearchLanguage, oldSearchLanguage) {
+
+    },
   },
   methods: {
     getExactMatch(searchKeyword: string): IDictionaryEntry {
@@ -65,6 +69,10 @@ import { Languages } from './definitions/LanguageEnums';
       }
 
       return { word: '', translations: [], links: [] };
+    },
+
+    onSelected(value) {
+      console.log(value);
     },
 
     getAllLanguagePairEntries(): IDictionaryDefinition[] {

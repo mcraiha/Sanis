@@ -53,7 +53,7 @@ import { Languages } from './definitions/LanguageEnums';
     searchTerm: function(newSearchTerm, oldSearchTerm) {
       // Update URL here, TODO: add language
       if (newSearchTerm && newSearchTerm.length > 0) {
-        history.replaceState({}, `Hakusana: ${newSearchTerm}`, `index.html?search=${newSearchTerm}`);
+        history.replaceState({}, `Hakusana: ${newSearchTerm}`, `index.html?lang=${this.$data.currentDictionaryDefinition.from}-${this.$data.currentDictionaryDefinition.to}&search=${newSearchTerm}`);
       }
     },
   },

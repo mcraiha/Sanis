@@ -25,6 +25,7 @@ import DevLog from './components/DevLog.vue';
 import CustomFooter from './components/CustomFooter.vue';
 import { IDictionaryDefinition } from './interfaces/IDictionaryDefinition';
 import { LanguageEntries } from './definitions/LanguageEntries';
+import { Languages } from './definitions/LanguageEnums';
 
 @Component({
   components: {
@@ -118,9 +119,11 @@ export default class App extends Vue {
   public async mounted() {
     const jsonHandleStartTime = performance.now();
 
+    this.ParseSearchParams();
+
     this.$data.currentDictionaryDefinition = LanguageEntries.entries[this.$data.currentDictionaryIndex];
 
-    const filename: string = '1-2.zst';
+    const filename: string = `${this.$data.currentDictionaryDefinition.from}-${this.$data.currentDictionaryDefinition.to}.zst`;
 
     let asUint8Array: Uint8Array = new Uint8Array(); // Default value is not used
 
@@ -169,8 +172,6 @@ export default class App extends Vue {
 
       this.$data.devLog.push(`Trie construction took: ${trieCreateEndTime - trieCreateStartTime} milliseconds`);
 
-      this.ParseSearchParams();
-
       // console.log(data);
       this.$data.dataLoaded = true;
 
@@ -183,7 +184,18 @@ export default class App extends Vue {
 
     const lang = params.get('lang');
     if (lang) {
-      // TODO: Handle language here
+      const splitted: string[] = lang.split('-');
+      if (splitted.length === 2) {
+        const firstNumber: number = parseInt(splitted[0], 10);
+        const secondNumber: number = parseInt(splitted[1], 10);
+        if (firstNumber in Languages && secondNumber in Languages) {
+          const languageIndex = LanguageEntries.entries.findIndex((entry) => entry.from === firstNumber && entry.to === secondNumber);
+          if (languageIndex > -1) {
+            this.$data.currentDictionaryIndex = languageIndex;
+          }
+        }
+      }
+      
     }
 
     const search = params.get('search');

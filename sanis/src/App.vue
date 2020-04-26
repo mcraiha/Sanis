@@ -47,6 +47,7 @@ import { Languages } from './definitions/LanguageEnums';
       currentTrie: null as any,
       currentDictionaryIndex: 0 as number,
       currentDictionaryDefinition: null as unknown,
+      reloadDictionaryCallback: null as any,
 
       // Development log
       devLogEnabled: false as boolean,
@@ -74,8 +75,12 @@ import { Languages } from './definitions/LanguageEnums';
       return { word: '', translations: [], links: [] };
     },
 
-    onSelected(value) {
+    async onSelected(value) {
       console.log(value);
+      if (value !== this.$data.currentDictionaryIndex && 0 <= value && value < LanguageEntries.entries.length) {
+        this.$data.currentDictionaryIndex = value;
+        await this.$data.reloadDictionaryCallback();
+      }
     },
 
     getAllLanguagePairEntries(): IDictionaryDefinition[] {
@@ -124,15 +129,17 @@ import { Languages } from './definitions/LanguageEnums';
 
 export default class App extends Vue {
 
-
   // Lifecycle hook
   public async mounted() {
+    this.$data.reloadDictionaryCallback = this.LoadChosenDictionary;
     this.ParseSearchParams();
 
     await this.LoadChosenDictionary();
   }
 
   private async LoadChosenDictionary() {
+    this.$data.dataLoaded = false;
+
     this.$data.currentDictionaryDefinition = LanguageEntries.entries[this.$data.currentDictionaryIndex];
 
     const filename: string = `${this.$data.currentDictionaryDefinition.from}-${this.$data.currentDictionaryDefinition.to}.zst`;

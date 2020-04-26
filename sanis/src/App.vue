@@ -1,4 +1,7 @@
-<template>
+<template v-if="dataLoaded === false">
+    <p>Ladataan...</p>
+</template>
+<template v-else>
   <div id="app">
     <DevLog v-bind:devLogs="devLog" />
     <TextInput v-bind:searchTerm.sync="searchTerm"/>
@@ -125,10 +128,14 @@ export default class App extends Vue {
 
   // Lifecycle hook
   public async mounted() {
-    const jsonHandleStartTime = performance.now();
+    
 
     this.ParseSearchParams();
 
+    await this.LoadChosenDictionary();
+  }
+
+  private async LoadChosenDictionary() {
     this.$data.currentDictionaryDefinition = LanguageEntries.entries[this.$data.currentDictionaryIndex];
 
     const filename: string = `${this.$data.currentDictionaryDefinition.from}-${this.$data.currentDictionaryDefinition.to}.zst`;
@@ -144,17 +151,21 @@ export default class App extends Vue {
       this.DoUpdateIfNeeded(filename);
     }
 
-    //const response = await fetch();
-    //const asArrayBuffer = await response.arrayBuffer();
-    //const asUint8Array = new Uint8Array(asArrayBuffer);
-
     ZstdCodec.run((zstd: any) => {
+      const zstdDecodeStartTime = performance.now();
+
       const simple = new zstd.Simple();
       const jsonBytes = simple.decompress(asUint8Array);
+
+      const zstdDecodeEndTime = performance.now();
+
+      this.$data.devLog.push(`ZSTD decode took: ${zstdDecodeEndTime - zstdDecodeStartTime} milliseconds`);
+
       const jsonText = new TextDecoder('utf-8').decode(jsonBytes);
 
       const wireData = JSON.parse(jsonText);
 
+      const jsonHandleStartTime = performance.now();
       const data: {[k: string]: any} = {};
 
       for (const key in wireData) {
@@ -184,7 +195,6 @@ export default class App extends Vue {
       this.$data.dataLoaded = true;
 
     });
-
   }
 
   private ParseSearchParams(): void {

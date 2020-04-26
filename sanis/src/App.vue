@@ -105,8 +105,7 @@ import { Languages } from './definitions/LanguageEnums';
       if (possibleIndexOfMatch > -1) {
         // Remove exact match
         sliced.splice(possibleIndexOfMatch, 1);
-      }
-      else if (gotEnough) {
+      } else if (gotEnough) {
         // No exact match, and there is one match too many, so remove last array element
         sliced.pop();
       }
@@ -128,8 +127,6 @@ export default class App extends Vue {
 
   // Lifecycle hook
   public async mounted() {
-    
-
     this.ParseSearchParams();
 
     await this.LoadChosenDictionary();
@@ -169,7 +166,7 @@ export default class App extends Vue {
       const data: {[k: string]: any} = {};
 
       for (const key in wireData) {
-        // We need more info so we have to "juice up" the wireData format before we use it 
+        // We need more info so we have to "juice up" the wireData format before we use it
         data[key.toLowerCase()] = { word: key, translations: wireData[key].t, links: wireData[key].l };
       }
 
@@ -207,13 +204,13 @@ export default class App extends Vue {
         const firstNumber: number = parseInt(splitted[0], 10);
         const secondNumber: number = parseInt(splitted[1], 10);
         if (firstNumber in Languages && secondNumber in Languages) {
-          const languageIndex = LanguageEntries.entries.findIndex((entry) => entry.from === firstNumber && entry.to === secondNumber);
+          const languageIndex = LanguageEntries.entries.findIndex((entry) => entry.from === firstNumber
+          && entry.to === secondNumber);
           if (languageIndex > -1) {
             this.$data.currentDictionaryIndex = languageIndex;
           }
         }
       }
-      
     }
 
     const search = params.get('search');
@@ -233,7 +230,6 @@ export default class App extends Vue {
   }
 
   private async DownloadAndStoreToLocalStorage(filename: string): Promise<Uint8Array> {
-  
     // Download wanted dictionary
     const response = await fetch(`dictionaries/${filename}`);
     const asArrayBuffer = await response.arrayBuffer();

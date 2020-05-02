@@ -4,12 +4,18 @@
       <p>Ladataan...</p>
     </div>
     <div v-else>
-      <DevLog v-if="devLogEnabled" v-bind:devLogs="devLog" />
-      <TextInput v-bind:searchTerm.sync="searchTerm"/>
-      <p>{{ searchTerm }}</p>
-      <LanguagePairSelect v-bind:pairs="getAllLanguagePairEntries()" @selected="onSelected" />
+      <main>
+      <section>
+        <DevLog v-if="devLogEnabled" v-bind:devLogs="devLog" />
+        <form>
+          <TextInput v-bind:searchTerm.sync="searchTerm"/>
+          <!-- <p>{{ searchTerm }}</p> -->
+          <LanguagePairSelect v-bind:pairs="getAllLanguagePairEntries()" @selected="onSelected" />
+        </form>
+      </section>
       <ShowResults v-bind:exactSearchTerm="searchTerm" v-bind:exactMatch="getExactMatch(searchTerm)" v-bind:closestMatches="getPartialMatches(searchTerm, 5)" v-bind:dictionaryDefinition="currentDictionaryDefinition" />
       <CustomFooter />
+      </main>
     </div>
   </div>
 </template>

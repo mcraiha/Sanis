@@ -1,22 +1,43 @@
 <template>
-  <div class="showResults">
-    <p>Hakusana: {{ exactSearchTerm }}</p>
-    <p>Osuma: 
+<div>
+  <section>
+    <header>
+      <h2>Hakusana: <i>{{ exactSearchTerm }}</i></h2>
+    </header>
+  </section>
+
+  <hr>
+  
+  <section>
+    <header>
+      <h3>Osuma:</h3>
+    </header>
+    <aside>
       <details v-if="doesExactMatchContainSomething()" open>
         <summary><a :href="getFromUrl(exactMatch.word)">{{ exactMatch.word }}</a></summary>
         <p v-for="exactTranslation in this.exactMatch.translations">
           <a :href="getToUrl(exactTranslation)">{{ exactTranslation }}</a>
         </p>
       </details>
-    </p>
-    <p>Sivuosumat:
+    </aside>
+  </section>
+
+  <hr>
+    
+  <section>
+    <header>
+      <h4>Sivuosumat:</h4>
+    </header>
+    <aside>
       <details v-for="item in this.closestMatches" open>
         <summary><a :href="getFromUrl(item.word)">{{ item.word }}</a></summary>
         <p v-for="translation in item.translations">
           <a :href="getToUrl(translation)">{{ translation }}</a>
         </p>
       </details>
-    </p>
+    </aside>
+  </section>
+
   </div>
 </template>
 

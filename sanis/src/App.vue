@@ -1,14 +1,16 @@
-<template v-if="dataLoaded === false">
-    <p>Ladataan...</p>
-</template>
-<template v-else>
+<template>
   <div id="app">
-    <DevLog v-bind:devLogs="devLog" />
-    <TextInput v-bind:searchTerm.sync="searchTerm"/>
-    <p>{{ searchTerm }}</p>
-    <LanguagePairSelect v-bind:pairs="getAllLanguagePairEntries()" @selected="onSelected" />
-    <ShowResults v-bind:exactSearchTerm="searchTerm" v-bind:exactMatch="getExactMatch(searchTerm)" v-bind:closestMatches="getPartialMatches(searchTerm, 5)" v-bind:dictionaryDefinition="currentDictionaryDefinition" />
-    <CustomFooter />
+    <div v-if="dataLoaded === false">
+      <p>Ladataan...</p>
+    </div>
+    <div v-else>
+      <DevLog v-bind:devLogs="devLog" />
+      <TextInput v-bind:searchTerm.sync="searchTerm"/>
+      <p>{{ searchTerm }}</p>
+      <LanguagePairSelect v-bind:pairs="getAllLanguagePairEntries()" @selected="onSelected" />
+      <ShowResults v-bind:exactSearchTerm="searchTerm" v-bind:exactMatch="getExactMatch(searchTerm)" v-bind:closestMatches="getPartialMatches(searchTerm, 5)" v-bind:dictionaryDefinition="currentDictionaryDefinition" />
+      <CustomFooter />
+    </div>
   </div>
 </template>
 

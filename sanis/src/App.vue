@@ -4,7 +4,7 @@
       <p>Ladataan...</p>
     </div>
     <div v-else>
-      <DevLog v-bind:devLogs="devLog" />
+      <DevLog v-if="devLogEnabled" v-bind:devLogs="devLog" />
       <TextInput v-bind:searchTerm.sync="searchTerm"/>
       <p>{{ searchTerm }}</p>
       <LanguagePairSelect v-bind:pairs="getAllLanguagePairEntries()" @selected="onSelected" />
@@ -135,6 +135,12 @@ export default class App extends Vue {
   public async mounted() {
     this.$data.reloadDictionaryCallback = this.LoadChosenDictionary;
     this.ParseSearchParams();
+
+    if (process.env.NODE_ENV === 'development') {
+      this.$data.devLogEnabled = true;
+    } else {
+      this.$data.devLogEnabled = false;
+    }
 
     await this.LoadChosenDictionary();
   }
